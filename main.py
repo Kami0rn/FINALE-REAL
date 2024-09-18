@@ -4,8 +4,8 @@ from blockchain import Blockchain, Block
 from traceability import hash_image, load_images_from_directory
 
 # Image processing
-# target_image_path = "E:/CPE/1-2567/Project/TF/10_food_classes_10_percent/train/sushi/36741.jpg"
-target_image_path = "E:/CPE/1-2567/Project/TF/10_food_classes_10_percent/test/sushi/5437.jpg"
+target_image_path = "E:/CPE/1-2567/Project/TF/10_food_classes_10_percent/train/sushi/36741.jpg"
+# target_image_path = "E:/CPE/1-2567/Project/TF/10_food_classes_10_percent/test/sushi/5437.jpg"
 target_image_hash = hash_image(target_image_path)
 print(f"Target Image Hash (before training): {target_image_hash}")
 
