@@ -1,2 +1,3 @@
-saved_models_rem_preprocessed_512/
-images_rem_preprocessed_512/
+backend/saved_models_rem_preprocessed_512/
+backend/images_rem_preprocessed_512/
+backend/rem_preprocessed_512/
