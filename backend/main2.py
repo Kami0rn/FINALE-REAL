@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from schemas.schemas_login import register_body, login_body
 from json_webtoken import generate_token, token_required
 from module.user_profile import UserProfile
-from module.models import RegisterModel, db # Import RegisterModel from models.py
+from models.models import RegisterModel, db # Import RegisterModel from models.py
 
 app = Flask(__name__)
 CORS(app)

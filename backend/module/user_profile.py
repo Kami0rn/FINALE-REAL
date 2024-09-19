@@ -1,7 +1,7 @@
 # user_profile.py
 from flask import jsonify
 from flask_restful import Resource
-from module.models import RegisterModel
+from models.models import RegisterModel
 from json_webtoken import token_required
 
 class UserProfile(Resource):
