@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import login from '../../services/login'; // Adjust the import path as necessary
 import backgroundImage from '../../assets/spectral-light-illuminates-transparent-red-colored-red-roses-abstract-flower-art-generative-ai.jpg';
-import './Login.css'; // Import the CSS file for animations
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -25,10 +24,10 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="relative min-h-screen bg-cover bg-center floating" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="relative min-h-screen bg-cover bg-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
             <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"></div>
             <div className="relative z-10 flex flex-col items-center justify-center min-h-screen">
-                <header className="w-full py-4 gradient-animation">
+                <header className="w-full py-4 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 animate-gradient-x">
                     <h1 className="text-4xl font-bold text-center text-white" style={{ textShadow: '2px 2px 6px rgba(0, 0, 0, 0.3)' }}>
                         <Link to="/" className="hover:underline">XenoAI</Link>
                     </h1>
@@ -80,7 +79,7 @@ const Login: React.FC = () => {
                         Don't have an account? <Link to="/register" className="text-pink-500 underline">Register here</Link>
                     </p>
                 </main>
-                <footer className="w-full py-4 text-center text-white gradient-animation">
+                <footer className="w-full py-4 text-center text-white bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 animate-gradient-x">
                     <p>&copy; 2023 XenoAI. All rights reserved.</p>
                 </footer>
             </div>

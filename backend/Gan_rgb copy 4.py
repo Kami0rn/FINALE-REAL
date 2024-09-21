@@ -135,7 +135,7 @@ def wasserstein_loss(y_true, y_pred):
 
 ##########################################################################
 # Load and preprocess images from the directory
-image_dir = r'E:\CPE\1-2567\Project\Finale\rem_preprocessed_512'  # Path to your image directory
+image_dir = r'E:\CPE\1-2567\Project\FINALE REAL\backend\rem_20'  # Path to your image directory
 X_train = load_and_preprocess_images(image_dir, img_shape)
 
 # Check the shape of the loaded dataset
@@ -174,8 +174,8 @@ def train(epochs, batch_size=64, save_interval=100, n_critic=1, clip_value=0.01)
     half_batch = int(batch_size / 2)
     
     # Create directories for saving models and images
-    save_dir = "saved_models_rem_preprocessed_512"
-    image_dir = "images_rem_preprocessed_512"
+    save_dir = "saved_models_20"
+    image_dir = "images_rem_20"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     if not os.path.exists(image_dir):
@@ -232,7 +232,7 @@ def save_imgs(epoch):
             axs[i, j].imshow(gen_imgs[cnt, :, :, :])
             axs[i, j].axis('off')
             cnt += 1
-    fig.savefig(f"images_rem_preprocessed_512/portrait_{epoch}.png")
+    fig.savefig(f"images_rem_20/portrait_{epoch}.png")
     plt.close()
 
 ##########################################################################

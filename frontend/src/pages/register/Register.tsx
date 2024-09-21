@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../../services/register";
 import backgroundImg from "../../assets/Register.jpg";
-import "./Register.css";
 
 const Register: React.FC = () => {
     const [formData, setFormData] = useState({
