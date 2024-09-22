@@ -152,6 +152,9 @@ class WGAN(Resource):
 
 # Inside the train method
     def train(self, epochs, batch_size=64, save_interval=100, n_critic=1, clip_value=0.01):
+        if self.X_train.shape[0] == 0:
+            raise ValueError("Training data is empty. Please upload images before starting training.")
+
         half_batch = int(batch_size / 2)
         
         # Create directories for saving models and images
@@ -220,16 +223,20 @@ class WGAN(Resource):
         # Parse the uploaded files
         parser = reqparse.RequestParser()
         parser.add_argument('images', type=str, location='files', action='append')
+        parser.add_argument('epochs', type=int, required=True, help='Number of epochs is required')
         args = parser.parse_args()
 
         # Load and preprocess the uploaded images
         uploaded_files = request.files.getlist("images")
+        if not uploaded_files:
+            return {"message": "No images uploaded"}, 400
+
         images = [Image.open(file) for file in uploaded_files]
         processed_images = self.load_and_preprocess_images(images, self.img_shape)
 
         # Update the training data
         self.X_train = np.concatenate((self.X_train, processed_images), axis=0)
 
-        # Start training
-        self.train(epochs=100000, batch_size=32, save_interval=100)  # Reducing epochs and batch_size for faster training
+        # Start training with the specified number of epochs
+        self.train(epochs=args['epochs'], batch_size=32, save_interval=100)
         return {"message": "Training started"}, 200

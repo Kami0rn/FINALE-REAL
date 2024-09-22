@@ -1,5 +1,5 @@
-from flask import Flask, jsonify
-from flask_restful import Api, Resource, abort, reqparse, marshal_with
+from flask import Flask, jsonify, request
+from flask_restful import Api, Resource, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,9 +11,11 @@ from module.register import Register
 from module.wgan import WGAN  # Import the WGAN class
 from models.models import db, User, UserAI, WGANModel, OverfittingModel, BlockchainRecord, Image, LoginSession
 from flask_socketio import SocketIO
+from PIL import Image as PILImage
+import numpy as np
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Allow requests from http://localhost:3000
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -21,7 +23,6 @@ app.config["SECRET_KEY"] = "your_secret_key"
 
 db = SQLAlchemy(app)
 api = Api(app)
-
 
 progress_data = {
     'epoch': 0,
@@ -45,7 +46,24 @@ class WGANResource(Resource):
         self.wgan = WGAN(progress_data)  # Pass the progress_data dictionary
 
     def post(self):
-        return self.wgan.post()
+        parser = reqparse.RequestParser()
+        parser.add_argument('epochs', type=int, required=True, help='Number of epochs is required')
+        args = parser.parse_args()
+
+        # Load and preprocess the uploaded images
+        uploaded_files = request.files.getlist("images")
+        if not uploaded_files:
+            return {"message": "No images uploaded"}, 400
+
+        images = [PILImage.open(file) for file in uploaded_files]
+        processed_images = self.wgan.load_and_preprocess_images(images, self.wgan.img_shape)
+
+        # Update the training data
+        self.wgan.X_train = np.concatenate((self.wgan.X_train, processed_images), axis=0)
+
+        # Start training with the specified number of epochs
+        self.wgan.train(epochs=args['epochs'], batch_size=32, save_interval=100)
+        return {"message": "Training started"}, 200
 
 api.add_resource(Register, "/register")
 api.add_resource(Login, "/login")
