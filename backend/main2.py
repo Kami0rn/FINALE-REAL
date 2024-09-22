@@ -9,6 +9,7 @@ from json_webtoken import generate_token, token_required
 from module.user_profile import UserProfile
 from module.login import Login
 from module.register import Register
+from module.wgan import WGAN  # Import the WGAN class
 from models.models import db, User, UserAI, WGANModel, OverfittingModel, BlockchainRecord, Image, LoginSession
 
 app = Flask(__name__)
@@ -26,11 +27,19 @@ class ProtectedResource(Resource):
     def get(self, current_user):
         return {"message": f"Hello, user {current_user}"}, 200
 
+# Create a new resource for WGAN
+class WGANResource(Resource):
+    def __init__(self):
+        self.wgan = WGAN()
+
+    def post(self):
+        return self.wgan.post()
 
 api.add_resource(Register, "/register")
 api.add_resource(Login, "/login")
 api.add_resource(ProtectedResource, "/protected")  # Add a protected route
 api.add_resource(UserProfile, '/user/<int:user_id>')
+api.add_resource(WGANResource, '/wgan')  # Add the WGAN resource
 
 if __name__ == "__main__":
     with app.app_context():
