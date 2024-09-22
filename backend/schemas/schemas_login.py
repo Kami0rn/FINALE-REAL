@@ -11,5 +11,6 @@ register_body = {
 login_body = {
     'message': fields.String,
     'token': fields.String,
-    'user_id': fields.Integer  # Add this field
+    'user_id': fields.Integer,
+    'username': fields.String,
 }

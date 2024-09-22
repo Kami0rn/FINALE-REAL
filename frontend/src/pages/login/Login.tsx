@@ -15,7 +15,8 @@ const Login: React.FC = () => {
             const data = await login(username, password);
             console.log('Login successful:', data);
             localStorage.setItem('token', data.token);
-            localStorage.setItem('user_id', data.user_id);  // Save token to local storage
+            localStorage.setItem('user_id', data.user_id);  
+            localStorage.setItem('username', data.username);// Save token to local storage
             navigate('/profile'); // Redirect to /profile
         } catch (error) {
             console.error('Login failed:', error);

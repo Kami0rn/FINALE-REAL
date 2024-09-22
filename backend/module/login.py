@@ -26,11 +26,13 @@ class Login(Resource):
 
         # Fetch user_id after successful login and generate a token
         user_id = user.id
+        username = user.username
         token = generate_token(user_id, current_app.config['SECRET_KEY'])
 
-        # Return the login success message, token, and user_id
+        # Return the login success message, token, user_id, and username
         return {
             "message": "Login successful",
             "token": token,
-            "user_id": user_id  # Return the user_id in the response
+            "user_id": user_id,  # Return the user_id in the response
+            "username": username,  # Return the username in the response
         }, 200
