@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request
+import os
+from flask import Flask, jsonify, request , send_file
 from flask_restful import Api, Resource, reqparse
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -8,6 +9,7 @@ from json_webtoken import generate_token, token_required
 from module.user_profile import UserProfile
 from module.login import Login
 from module.register import Register
+
 from module.wgan import WGAN  # Import the WGAN class
 from models.models import db, User, UserAI, WGANModel, OverfittingModel, BlockchainRecord, Image, LoginSession
 from flask_socketio import SocketIO
@@ -69,6 +71,32 @@ class WGANResource(Resource):
         # Start training with the specified number of epochs
         self.wgan.train(epochs=args['epochs'], batch_size=32, save_interval=100)
         return {"message": "Training started"}, 200
+    
+class LatestImageResource(Resource):
+    def get(self, username, user_custom_name):
+        # Construct the directory path
+        base_dir = "E:\\CPE\\1-2567\\Project\\FINALE REAL"
+        image_dir = os.path.join(base_dir, f"{username}_{user_custom_name}_images")
+        
+        if not os.path.exists(image_dir):
+            print(f"Directory {image_dir} does not exist")  # Add logging for debugging
+            return {"message": "Image directory does not exist"}, 404
+
+        # Get the list of files in the directory
+        files = os.listdir(image_dir)
+        if not files:
+            print(f"No images found in {image_dir}")  # Add logging for debugging
+            return {"message": "No images found"}, 404
+
+        # Sort files by modification time and get the latest file
+        files.sort(key=lambda x: os.path.getmtime(os.path.join(image_dir, x)), reverse=True)
+        latest_image_path = os.path.join(image_dir, files[0])
+
+        if not os.path.exists(latest_image_path):
+            print(f"File {latest_image_path} does not exist")  # Add logging for debugging
+            return {"message": "Latest image file does not exist"}, 404
+
+        return send_file(latest_image_path, mimetype='image/png')
 
 api.add_resource(Register, "/register")
 api.add_resource(Login, "/login")
@@ -76,6 +104,7 @@ api.add_resource(ProtectedResource, "/protected")  # Add a protected route
 api.add_resource(UserProfile, '/user/<int:user_id>')
 api.add_resource(WGANResource, '/wgan')  # Add the WGAN resource
 api.add_resource(ProgressResource, '/progress')  # Add the progress resource
+api.add_resource(LatestImageResource, '/latest_image/<string:username>/<string:user_custom_name>')
 
 if __name__ == "__main__":
     with app.app_context():

@@ -159,7 +159,7 @@ class WGAN(Resource):
 # WGAN.py
 
 # Inside the train method
-    def train(self, epochs, batch_size=64, save_interval=100, n_critic=1, clip_value=0.01):
+    def train(self, epochs, batch_size=64, save_interval=10, n_critic=1, clip_value=0.01):
         if self.X_train.shape[0] == 0:
             raise ValueError("Training data is empty. Please upload images before starting training.")
 
@@ -244,5 +244,5 @@ class WGAN(Resource):
         self.X_train = np.concatenate((self.X_train, processed_images), axis=0)
 
         # Start training with the specified number of epochs
-        self.train(epochs=args['epochs'], batch_size=32, save_interval=100)
+        self.train(epochs=args['epochs'], batch_size=32, save_interval=10)
         return {"message": "Training started"}, 200

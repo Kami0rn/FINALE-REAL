@@ -1,3 +1,4 @@
+// Import necessary packages and components
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Nav from "../nav/Nav"; // Adjust the path as necessary
@@ -10,10 +11,12 @@ const Train: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [numEpochs, setNumEpochs] = useState(100); // Default to 100 epochs
   const [userCustomName, setUserCustomName] = useState(""); // Custom name input
+  const [latestImageUrl, setLatestImageUrl] = useState(""); // URL of the latest image
   const username = localStorage.getItem("username"); // Retrieve username from local storage
 
+  // Fetch progress data
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const fetchProgress = async () => {
       try {
         const response = await axios.get("http://localhost:5000/progress");
         const data = response.data;
@@ -24,10 +27,46 @@ const Train: React.FC = () => {
       } catch (error) {
         console.error("Error fetching progress:", error);
       }
-    }, 1000); // Poll every second
+    };
+
+    // Fetch initially
+    fetchProgress();
+
+    // Set interval to fetch every second
+    const interval = setInterval(fetchProgress, 1000);
 
     return () => clearInterval(interval);
   }, []);
+
+  // Fetch the latest image every second
+  useEffect(() => {
+    const fetchLatestImage = async () => {
+      try {
+        if (username && userCustomName) {
+          const imageResponse = await axios.get(
+            `http://localhost:5000/latest_image/${username}/${userCustomName}`,
+            {
+              responseType: "blob",
+              headers: {
+                "Cache-Control": "no-cache", // Ensure no caching
+                Pragma: "no-cache",
+                Expires: "0",
+              },
+            }
+          );
+          const imageUrl = URL.createObjectURL(imageResponse.data);
+          setLatestImageUrl(imageUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching latest image:", error);
+      }
+    };
+
+    // Set interval to fetch the image every second
+    const interval = setInterval(fetchLatestImage, 1000);
+
+    return () => clearInterval(interval);
+  }, [username, userCustomName]); // Keep the dependencies in case username or custom name changes
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(event.target.files);
@@ -43,17 +82,17 @@ const Train: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     if (!selectedFiles) {
       alert("Please select files to upload.");
       return;
     }
-  
+
     if (!username || !userCustomName) {
       alert("Please provide both username and custom name.");
       return;
     }
-  
+
     const formData = new FormData();
     for (let i = 0; i < selectedFiles.length; i++) {
       formData.append("images", selectedFiles[i]);
@@ -61,7 +100,7 @@ const Train: React.FC = () => {
     formData.append("epochs", numEpochs.toString());
     formData.append("username", username);
     formData.append("user_custom_name", userCustomName);
-  
+
     try {
       await axios.post("http://127.0.0.1:5000/wgan", formData, {
         headers: {
@@ -159,6 +198,15 @@ const Train: React.FC = () => {
             <p className="text-gray-700">
               G Loss: <span id="g_loss">{gLoss}</span>
             </p>
+            {latestImageUrl && (
+              <div className="mt-4">
+                <img
+                  src={latestImageUrl}
+                  alt="Latest generated"
+                  className="w-full rounded-lg"
+                />
+              </div>
+            )}
           </div>
         </main>
         <footer className="w-full py-4 text-center text-white bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 animate-gradient-x">
