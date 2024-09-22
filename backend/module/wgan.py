@@ -10,9 +10,10 @@ import tensorflow as tf
 import tensorflow_addons as tfa  # Use TensorFlow Addons for InstanceNormalization
 from flask_restful import Resource, reqparse
 from flask import request
+from flask_socketio import SocketIO, emit
 
 class WGAN(Resource):
-    def __init__(self):
+    def __init__(self, progress_data):
         # Set image dimensions for RGB images
         self.img_rows = 128
         self.img_cols = 128
@@ -46,6 +47,8 @@ class WGAN(Resource):
         # Combined model (stacked generator and discriminator)
         self.combined = Model(noise, validity)
         self.combined.compile(loss=self.wasserstein_loss, optimizer=self.optimizer)
+
+        self.progress_data = progress_data  # Pass the progress_data dictionary
 
     def load_and_preprocess_images(self, images, img_shape):
         processed_images = []
@@ -144,6 +147,10 @@ class WGAN(Resource):
     def wasserstein_loss(self, y_true, y_pred):
         return tf.reduce_mean(y_true * y_pred)
 
+
+# WGAN.py
+
+# Inside the train method
     def train(self, epochs, batch_size=64, save_interval=100, n_critic=1, clip_value=0.01):
         half_batch = int(batch_size / 2)
         
@@ -156,9 +163,7 @@ class WGAN(Resource):
             os.makedirs(image_dir)
 
         for epoch in range(epochs):
-
             for _ in range(n_critic):
-
                 # Train Discriminator
                 idx = np.random.randint(0, self.X_train.shape[0], half_batch)
                 imgs = self.X_train[idx]
@@ -180,14 +185,18 @@ class WGAN(Resource):
             noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
             g_loss = self.combined.train_on_batch(noise, -np.ones((batch_size, 1)))
 
-            # Print progress
-            print(f"{epoch} [D loss: {d_loss}] [G loss: {g_loss}]")
+            # Update progress data
+            self.progress_data['epoch'] = epoch
+            self.progress_data['progress'] = (epoch / epochs) * 100
+            self.progress_data['d_loss'] = d_loss.tolist() if isinstance(d_loss, np.ndarray) else d_loss
+            self.progress_data['g_loss'] = g_loss.tolist() if isinstance(g_loss, np.ndarray) else g_loss
 
-            # Save generated images and model at intervals
+            # Save images and models at intervals
             if epoch % save_interval == 0:
                 self.save_imgs(epoch)
                 self.generator.save(os.path.join(save_dir, f'generator_model_epoch_{epoch}.h5'))
                 print(f"Model saved at epoch {epoch}")
+
 
     def save_imgs(self, epoch):
         r, c = 5, 5
@@ -207,7 +216,7 @@ class WGAN(Resource):
         fig.savefig(f"images_rem_20/portrait_{epoch}.png")
         plt.close()
         
-    def post(self ):
+    def post(self):
         # Parse the uploaded files
         parser = reqparse.RequestParser()
         parser.add_argument('images', type=str, location='files', action='append')

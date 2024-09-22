@@ -7,6 +7,7 @@ import Login from './pages/login/Login';
 import Index from './pages/index/Index';
 import Register from './pages/register/Register';
 import UserProfile from './pages/login/Profile';
+import Train from './pages/train/Train';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
@@ -21,6 +22,7 @@ root.render(
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/login" element={<Login />} />
         <Route path='/register'element={<Register />} />
+        <Route path='/train' element={<Train />} />
       </Routes>
     </Router>
   </React.StrictMode>
