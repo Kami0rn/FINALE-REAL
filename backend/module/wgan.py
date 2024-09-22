@@ -13,7 +13,7 @@ from flask import request
 from flask_socketio import SocketIO, emit
 
 class WGAN(Resource):
-    def __init__(self, progress_data):
+    def __init__(self, progress_data, username, user_custom_name):
         # Set image dimensions for RGB images
         self.img_rows = 128
         self.img_cols = 128
@@ -49,6 +49,14 @@ class WGAN(Resource):
         self.combined.compile(loss=self.wasserstein_loss, optimizer=self.optimizer)
 
         self.progress_data = progress_data  # Pass the progress_data dictionary
+
+        # Set directories for saving models and images
+        self.save_dir = f"{username}_{user_custom_name}_models"
+        self.image_dir = f"{username}_{user_custom_name}_images"
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
+        if not os.path.exists(self.image_dir):
+            os.makedirs(self.image_dir)
 
     def load_and_preprocess_images(self, images, img_shape):
         processed_images = []
@@ -158,12 +166,10 @@ class WGAN(Resource):
         half_batch = int(batch_size / 2)
         
         # Create directories for saving models and images
-        save_dir = "saved_models_20"
-        image_dir = "images_rem_20"
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        if not os.path.exists(image_dir):
-            os.makedirs(image_dir)
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
+        if not os.path.exists(self.image_dir):
+            os.makedirs(self.image_dir)
 
         for epoch in range(epochs):
             for _ in range(n_critic):
@@ -197,7 +203,7 @@ class WGAN(Resource):
             # Save images and models at intervals
             if epoch % save_interval == 0:
                 self.save_imgs(epoch)
-                self.generator.save(os.path.join(save_dir, f'generator_model_epoch_{epoch}.h5'))
+                self.generator.save(os.path.join(self.save_dir, f'generator_model_epoch_{epoch}.h5'))
                 print(f"Model saved at epoch {epoch}")
 
 
@@ -216,7 +222,7 @@ class WGAN(Resource):
                 axs[i, j].imshow(gen_imgs[cnt, :, :, :])
                 axs[i, j].axis('off')
                 cnt += 1
-        fig.savefig(f"images_rem_20/portrait_{epoch}.png")
+        fig.savefig(os.path.join(self.image_dir, f"portrait_{epoch}.png"))
         plt.close()
         
     def post(self):

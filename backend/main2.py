@@ -43,11 +43,13 @@ class ProgressResource(Resource):
 # Create a new resource for WGAN
 class WGANResource(Resource):
     def __init__(self):
-        self.wgan = WGAN(progress_data)  # Pass the progress_data dictionary
+        self.wgan = None # Pass the progress_data dictionary
 
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('epochs', type=int, required=True, help='Number of epochs is required')
+        parser.add_argument('username', type=str, required=True, help='Username is required')
+        parser.add_argument('user_custom_name', type=str, required=True, help='Custom name is required')
         args = parser.parse_args()
 
         # Load and preprocess the uploaded images
@@ -56,6 +58,9 @@ class WGANResource(Resource):
             return {"message": "No images uploaded"}, 400
 
         images = [PILImage.open(file) for file in uploaded_files]
+
+        # Initialize WGAN with the provided username and custom name
+        self.wgan = WGAN(progress_data, args['username'], args['user_custom_name'])
         processed_images = self.wgan.load_and_preprocess_images(images, self.wgan.img_shape)
 
         # Update the training data

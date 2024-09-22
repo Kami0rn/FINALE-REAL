@@ -9,6 +9,8 @@ const Train: React.FC = () => {
   const [gLoss, setGLoss] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [numEpochs, setNumEpochs] = useState(100); // Default to 100 epochs
+  const [userCustomName, setUserCustomName] = useState(""); // Custom name input
+  const username = localStorage.getItem("username"); // Retrieve username from local storage
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -35,20 +37,31 @@ const Train: React.FC = () => {
     setNumEpochs(parseInt(event.target.value, 10));
   };
 
+  const handleCustomNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUserCustomName(event.target.value);
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+  
     if (!selectedFiles) {
       alert("Please select files to upload.");
       return;
     }
-
+  
+    if (!username || !userCustomName) {
+      alert("Please provide both username and custom name.");
+      return;
+    }
+  
     const formData = new FormData();
     for (let i = 0; i < selectedFiles.length; i++) {
       formData.append("images", selectedFiles[i]);
     }
     formData.append("epochs", numEpochs.toString());
-
+    formData.append("username", username);
+    formData.append("user_custom_name", userCustomName);
+  
     try {
       await axios.post("http://127.0.0.1:5000/wgan", formData, {
         headers: {
@@ -95,6 +108,18 @@ const Train: React.FC = () => {
                 value={numEpochs}
                 onChange={handleEpochChange}
                 placeholder="Number of Epochs"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Custom Name:
+              </label>
+              <input
+                type="text"
+                value={userCustomName}
+                onChange={handleCustomNameChange}
+                placeholder="Custom Name"
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
               />
             </div>
