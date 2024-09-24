@@ -44,8 +44,11 @@ class ProgressResource(Resource):
 
 # Create a new resource for WGAN
 class WGANResource(Resource):
+    wgan_instance = None  # Class variable to hold the WGAN instance
+
     def __init__(self):
-        self.wgan = None # Pass the progress_data dictionary
+        if not WGANResource.wgan_instance:
+            WGANResource.wgan_instance = None
 
     def post(self):
         parser = reqparse.RequestParser()
@@ -62,15 +65,22 @@ class WGANResource(Resource):
         images = [PILImage.open(file) for file in uploaded_files]
 
         # Initialize WGAN with the provided username and custom name
-        self.wgan = WGAN(progress_data, args['username'], args['user_custom_name'])
-        processed_images = self.wgan.load_and_preprocess_images(images, self.wgan.img_shape)
+        WGANResource.wgan_instance = WGAN(progress_data, args['username'], args['user_custom_name'])
+        processed_images = WGANResource.wgan_instance.load_and_preprocess_images(images, WGANResource.wgan_instance.img_shape)
 
         # Update the training data
-        self.wgan.X_train = np.concatenate((self.wgan.X_train, processed_images), axis=0)
+        WGANResource.wgan_instance.X_train = np.concatenate((WGANResource.wgan_instance.X_train, processed_images), axis=0)
 
         # Start training with the specified number of epochs
-        self.wgan.train(epochs=args['epochs'], batch_size=32, save_interval=100)
+        WGANResource.wgan_instance.train(epochs=args['epochs'], batch_size=32, save_interval=100)
         return {"message": "Training started"}, 200
+
+class StopTrainingResource(Resource):
+    def post(self):
+        if WGANResource.wgan_instance:
+            WGANResource.wgan_instance.stop()
+            return {"message": "Training stopped"}, 200
+        return {"message": "No training in progress"}, 400
     
 class LatestImageResource(Resource):
     def get(self, username, user_custom_name):
@@ -105,6 +115,7 @@ api.add_resource(UserProfile, '/user/<int:user_id>')
 api.add_resource(WGANResource, '/wgan')  # Add the WGAN resource
 api.add_resource(ProgressResource, '/progress')  # Add the progress resource
 api.add_resource(LatestImageResource, '/latest_image/<string:username>/<string:user_custom_name>')
+api.add_resource(StopTrainingResource, '/stop_training')  # Add the stop training resource
 
 if __name__ == "__main__":
     with app.app_context():

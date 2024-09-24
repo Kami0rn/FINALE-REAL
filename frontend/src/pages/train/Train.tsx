@@ -37,7 +37,7 @@ const Train: React.FC = () => {
     fetchProgress();
 
     // Set interval to fetch every second
-    const interval = setInterval(fetchProgress, 10);
+    const interval = setInterval(fetchProgress, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -125,6 +125,17 @@ const Train: React.FC = () => {
     }
   };
 
+  const handleStopTraining = async () => {
+    try {
+      await axios.post("http://127.0.0.1:5000/stop_training");
+      alert("Training stopped successfully.");
+      setIsDisabled(false); // Re-enable inputs and button
+    } catch (error) {
+      console.error("Error stopping training:", error);
+      alert("Error stopping training.");
+    }
+  };
+
   return (
     <div
       className="relative min-h-screen bg-cover bg-center"
@@ -188,6 +199,19 @@ const Train: React.FC = () => {
                 disabled={isDisabled} // Disable button when form is submitted
               >
                 Upload and Train
+              </button>
+              <button
+                type="button"
+                onClick={handleStopTraining}
+                className="w-full px-6 py-2 mt-4 rounded-full text-black transition"
+                style={{
+                  background:
+                    "linear-gradient(90deg, rgba(255,153,153,1), rgba(153,255,204,1), rgba(255,204,255,1))",
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                }}
+                disabled={!isDisabled} // Enable button only when training is in progress
+              >
+                Stop Training
               </button>
             </form>
             <div className="ml-8 w-full max-w-md bg-white bg-opacity-90 p-8 rounded-lg shadow-lg backdrop-blur-sm">

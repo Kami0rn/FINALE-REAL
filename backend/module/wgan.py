@@ -275,3 +275,6 @@ class WGAN(Resource):
         # Start training with the specified number of epochs
         self.train(epochs=args['epochs'], batch_size=32, save_interval=10)
         return {"message": "Training started"}, 200
+
+
+    
