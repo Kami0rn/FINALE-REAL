@@ -108,6 +108,13 @@ const Navbar: React.FC = () => {
                 >
                   Blockchain
                 </Link>
+                <Link
+                  to="/train"
+                  className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Train
+                </Link>
                 <button
                   className="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-700 hover:text-white"
                   onClick={openLogoutDialog}
