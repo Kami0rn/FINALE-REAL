@@ -1,7 +1,9 @@
-// Import necessary packages and components
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Nav from "../nav/Nav"; // Adjust the path as necessary
+import Modal from "react-modal"; // Import react-modal
+
+Modal.setAppElement("#root"); // Set the root element for accessibility
 
 const Train: React.FC = () => {
   const [progress, setProgress] = useState(0);
@@ -12,6 +14,8 @@ const Train: React.FC = () => {
   const [numEpochs, setNumEpochs] = useState(100); // Default to 100 epochs
   const [userCustomName, setUserCustomName] = useState(""); // Custom name input
   const [latestImageUrl, setLatestImageUrl] = useState(""); // URL of the latest image
+  const [isDisabled, setIsDisabled] = useState(false); // State to manage disabled inputs
+  const [isLoading, setIsLoading] = useState(false); // State to manage loading indicator
   const username = localStorage.getItem("username"); // Retrieve username from local storage
 
   // Fetch progress data
@@ -102,6 +106,8 @@ const Train: React.FC = () => {
     formData.append("user_custom_name", userCustomName);
 
     try {
+      setIsDisabled(true); // Disable inputs and button
+      setIsLoading(true); // Show loading indicator
       await axios.post("http://127.0.0.1:5000/wgan", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -111,6 +117,8 @@ const Train: React.FC = () => {
     } catch (error) {
       console.error("Error uploading files:", error);
       alert("Error uploading files.");
+    } finally {
+      setIsLoading(false); // Hide loading indicator
     }
   };
 
@@ -136,6 +144,7 @@ const Train: React.FC = () => {
                 multiple
                 onChange={handleFileChange}
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                disabled={isDisabled} // Disable input when form is submitted
               />
             </div>
             <div className="mb-4">
@@ -148,6 +157,7 @@ const Train: React.FC = () => {
                 onChange={handleEpochChange}
                 placeholder="Number of Epochs"
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                disabled={isDisabled} // Disable input when form is submitted
               />
             </div>
             <div className="mb-4">
@@ -160,6 +170,7 @@ const Train: React.FC = () => {
                 onChange={handleCustomNameChange}
                 placeholder="Custom Name"
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                disabled={isDisabled} // Disable input when form is submitted
               />
             </div>
             <button
@@ -170,6 +181,7 @@ const Train: React.FC = () => {
                   "linear-gradient(90deg, rgba(255,153,153,1), rgba(153,255,204,1), rgba(255,204,255,1))",
                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
               }}
+              disabled={isDisabled} // Disable button when form is submitted
             >
               Upload and Train
             </button>
@@ -213,6 +225,15 @@ const Train: React.FC = () => {
           <p>&copy; 2023 XenoAI. All rights reserved.</p>
         </footer>
       </div>
+      <Modal
+        isOpen={isLoading && epoch === 0}
+        contentLabel="Loading"
+        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+      >
+        <div className="bg-white p-8 rounded-lg shadow-lg">
+          <p className="text-gray-700">Loading...</p>
+        </div>
+      </Modal>
     </div>
   );
 };

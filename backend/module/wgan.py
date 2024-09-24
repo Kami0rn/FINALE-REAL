@@ -11,6 +11,7 @@ import tensorflow_addons as tfa  # Use TensorFlow Addons for InstanceNormalizati
 from flask_restful import Resource, reqparse
 from flask import request
 from flask_socketio import SocketIO, emit
+import shutil
 
 class WGAN(Resource):
     def __init__(self, progress_data, username, user_custom_name):
@@ -53,10 +54,21 @@ class WGAN(Resource):
         # Set directories for saving models and images
         self.save_dir = f"{username}_{user_custom_name}_models"
         self.image_dir = f"{username}_{user_custom_name}_images"
-        if not os.path.exists(self.save_dir):
-            os.makedirs(self.save_dir)
-        if not os.path.exists(self.image_dir):
-            os.makedirs(self.image_dir)
+
+        # Delete existing directories if they exist
+        if os.path.exists(self.save_dir):
+            shutil.rmtree(self.save_dir)
+        if os.path.exists(self.image_dir):
+            shutil.rmtree(self.image_dir)
+
+        # Create new directories
+        os.makedirs(self.save_dir)
+        os.makedirs(self.image_dir)
+
+        # Initialize the previously saved epoch
+        self.prev_saved_epoch = None
+        self.stop_training = False  # Add a flag to stop training
+
 
     def load_and_preprocess_images(self, images, img_shape):
         processed_images = []
@@ -158,6 +170,9 @@ class WGAN(Resource):
 
 # WGAN.py
 
+    def stop(self):
+        self.stop_training = True  # Set the flag to stop training
+        
 # Inside the train method
     def train(self, epochs, batch_size=64, save_interval=10, n_critic=1, clip_value=0.01):
         if self.X_train.shape[0] == 0:
@@ -202,9 +217,22 @@ class WGAN(Resource):
 
             # Save images and models at intervals
             if epoch % save_interval == 0:
+                # Delete old files if they exist
+                if self.prev_saved_epoch is not None:
+                    old_model_path = os.path.join(self.save_dir, f'generator_model_epoch_{self.prev_saved_epoch}.h5')
+                    old_image_path = os.path.join(self.image_dir, f"portrait_{self.prev_saved_epoch}.png")
+                    if os.path.exists(old_model_path):
+                        os.remove(old_model_path)
+                    if os.path.exists(old_image_path):
+                        os.remove(old_image_path)
+
+                # Save new images and models
                 self.save_imgs(epoch)
                 self.generator.save(os.path.join(self.save_dir, f'generator_model_epoch_{epoch}.h5'))
                 print(f"Model saved at epoch {epoch}")
+
+                # Update the previously saved epoch
+                self.prev_saved_epoch = epoch
 
 
     def save_imgs(self, epoch):
