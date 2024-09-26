@@ -116,6 +116,7 @@ api.add_resource(WGANResource, '/wgan')
 api.add_resource(ProgressResource, '/progress')
 api.add_resource(LatestImageResource, '/latest_image/<string:username>/<string:user_custom_name>')
 api.add_resource(StopTrainingResource, '/stop_training')
+api.add_resource(UserProfile, '/user/<int:user_id>')  # Add this line
 
 if __name__ == "__main__":
     with app.app_context():
