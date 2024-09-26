@@ -237,7 +237,7 @@ class WGAN(Resource):
 
 
     def save_imgs(self, epoch):
-        r, c = 3, 3
+        r, c = 5, 5
         noise = np.random.normal(0, 1, (r * c, self.latent_dim))
         gen_imgs = self.generator.predict(noise)
 

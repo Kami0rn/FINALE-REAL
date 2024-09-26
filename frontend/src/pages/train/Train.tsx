@@ -143,7 +143,6 @@ const Train: React.FC = () => {
       await axios.post("http://127.0.0.1:5000/stop_training");
       alert("Training stopped successfully.");
       setIsDisabled(false); // Re-enable inputs and button
-      window.location.reload(); // Refresh the page
     } catch (error) {
       console.error("Error stopping training:", error);
       alert("Error stopping training.");
