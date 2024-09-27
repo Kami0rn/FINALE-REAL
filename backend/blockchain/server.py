@@ -1,8 +1,11 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import hashlib
 from blockchain import Blockchain  # Assuming blockchain.py exists in the same folder
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
+
 blockchain = Blockchain()
 
 # Existing API: Mine a Block
@@ -16,10 +19,21 @@ def mine_block():
     if not files:
         return jsonify({'message': 'No images provided'}), 400
 
+    # Extract additional fields
+    epochs = request.form.get('epochs')
+    username = request.form.get('username')
+    user_custom_name = request.form.get('user_custom_name')
+
+    # Log or process the additional fields as needed
+    print(f"Epochs: {epochs}, Username: {username}, User Custom Name: {user_custom_name}")
+
     block = blockchain.mine_block(files)
     response = {
         'message': 'New Block Mined',
-        'block': block
+        'block': block,
+        'epochs': epochs,
+        'username': username,
+        'user_custom_name': user_custom_name
     }
     return jsonify(response), 200
 
@@ -71,4 +85,4 @@ def full_chain():
     return jsonify(response), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=6000)
+    app.run(host='0.0.0.0', port=8080)

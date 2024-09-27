@@ -110,11 +110,23 @@ const Train: React.FC = () => {
     try {
       setIsDisabled(true); // Disable inputs and button
       setIsLoading(true); // Show loading indicator
+
+      // Send to first endpoint
+
+
+      // Send to second endpoint
+      await axios.post("http://127.0.0.1:8080/mine_block", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       await axios.post("http://127.0.0.1:5000/wgan", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+
       localStorage.setItem("user_model_name", userCustomName); // Save custom name to local storage
       alert("Files uploaded successfully.");
     } catch (error) {
