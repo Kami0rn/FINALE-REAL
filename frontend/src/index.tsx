@@ -7,7 +7,9 @@ import Login from './pages/login/Login';
 import Index from './pages/index/Index';
 import Register from './pages/register/Register';
 import UserProfile from './pages/login/Profile';
+import Tracing from './pages/tracing/Tracing';
 import Train from './pages/train/Train';
+import Blockchain from './pages/blockchain/Blockchain';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
@@ -23,6 +25,8 @@ root.render(
         <Route path="/login" element={<Login />} />
         <Route path='/register'element={<Register />} />
         <Route path='/train' element={<Train />} />
+        <Route path='/blockchain' element={<Blockchain />} />
+        <Route path='/tracing' element={<Tracing />} />
       </Routes>
     </Router>
   </React.StrictMode>

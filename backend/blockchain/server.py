@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import hashlib
+import os
 from blockchain import Blockchain  # Assuming blockchain.py exists in the same folder
 
 app = Flask(__name__)
@@ -14,7 +15,7 @@ def mine_block():
     if 'images' not in request.files:
         return jsonify({'message': 'No images provided'}), 400
 
-        files = request.files.getlist('images')
+    files = request.files.getlist('images')
 
     if not files:
         return jsonify({'message': 'No images provided'}), 400
@@ -27,7 +28,7 @@ def mine_block():
     # Log or process the additional fields as needed
     print(f"Epochs: {epochs}, Username: {username}, User Custom Name: {user_custom_name}")
 
-    block = blockchain.mine_block(files)
+    block = blockchain.mine_block(files, username, user_custom_name)
     response = {
         'message': 'New Block Mined',
         'block': block,
@@ -66,6 +67,28 @@ def trace_image_by_path():
             image_hash = hashlib.sha256(img_file.read()).hexdigest()
     except Exception as e:
         return jsonify({'message': f'Error reading image file: {str(e)}'}), 500
+
+    # Trace the image by its hash
+    block = blockchain.trace_image(image_hash)
+    if block:
+        response = {'block': block}
+    else:
+        response = {'message': 'Image not found in blockchain'}
+    return jsonify(response), 200
+
+# New API: Trace Image by Upload
+@app.route('/trace_image_by_upload', methods=['POST'])
+def trace_image_by_upload():
+    if 'image' not in request.files:
+        return jsonify({'message': 'No image provided'}), 400
+
+    file = request.files['image']
+
+    # Hash the image file content
+    try:
+        image_hash = hashlib.sha256(file.read()).hexdigest()
+    except Exception as e:
+        return jsonify({'message': f'Error processing image file: {str(e)}'}), 500
 
     # Trace the image by its hash
     block = blockchain.trace_image(image_hash)
