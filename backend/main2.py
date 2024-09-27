@@ -9,7 +9,7 @@ from json_webtoken import generate_token, token_required
 from module.user_profile import UserProfile
 from module.login import Login
 from module.register import Register
-
+from module.logout import Logout  #
 from module.wgan import WGAN  # Import the WGAN class
 from module.wgan_resource import WGANResource , ProgressResource # Import the WGAN class
 from models.models import db, User, UserAI, WGANModel, OverfittingModel, BlockchainRecord, Image, LoginSession
@@ -78,6 +78,8 @@ api.add_resource(ProgressResource, '/progress')  # Add the progress resource
 api.add_resource(LatestImageResource, '/latest_image/<string:username>/<string:user_custom_name>')
 api.add_resource(StopTrainingResource, '/stop_training')
 api.add_resource(UserProfile, '/user/<int:user_id>', endpoint='user_profile')  # Add a unique endpoint name
+api.add_resource(Logout, '/logout')
+
 
 if __name__ == "__main__":
     with app.app_context():

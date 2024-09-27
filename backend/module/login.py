@@ -7,6 +7,7 @@ from schemas.schemas_login import register_body, login_body
 from json_webtoken import generate_token, token_required
 from module.user_profile import UserProfile
 from models.models import db, User, UserAI, WGANModel, OverfittingModel, BlockchainRecord, Image, LoginSession
+from datetime import datetime
 
 class Login(Resource):
 
@@ -28,6 +29,15 @@ class Login(Resource):
         user_id = user.id
         username = user.username
         token = generate_token(user_id, current_app.config['SECRET_KEY'])
+
+        # Create a new login session
+        new_session = LoginSession(
+            user_id=user_id,
+            login_time=datetime.utcnow(),
+            session_token=token
+        )
+        db.session.add(new_session)
+        db.session.commit()
 
         # Return the login success message, token, user_id, and username
         return {

@@ -38,11 +38,27 @@ const Navbar: React.FC = () => {
     setIsProfileOpen(!isProfileOpen);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user_id');
-    setIsOpen(false);
-    window.location.href = '/'; // Redirect to home page after logout
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user_id');
+        setIsOpen(false);
+        window.location.href = '/'; // Redirect to home page after logout
+      } else {
+        console.error('Failed to logout');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   const openLogoutDialog = () => {

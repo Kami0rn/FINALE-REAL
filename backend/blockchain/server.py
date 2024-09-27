@@ -14,7 +14,7 @@ def mine_block():
     if 'images' not in request.files:
         return jsonify({'message': 'No images provided'}), 400
 
-    files = request.files.getlist('images')
+        files = request.files.getlist('images')
 
     if not files:
         return jsonify({'message': 'No images provided'}), 400
