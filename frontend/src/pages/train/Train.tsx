@@ -37,7 +37,7 @@ const Train: React.FC = () => {
     fetchProgress();
 
     // Set interval to fetch every second
-    const interval = setInterval(fetchProgress, 1000);
+    const interval = setInterval(fetchProgress, 10000);
 
     return () => clearInterval(interval);
   }, []);
@@ -67,7 +67,7 @@ const Train: React.FC = () => {
     };
 
     // Set interval to fetch the image every second
-    const interval = setInterval(fetchLatestImage, 1000);
+    const interval = setInterval(fetchLatestImage, 10000);
 
     return () => clearInterval(interval);
   }, [username, userCustomName]); // Keep the dependencies in case username or custom name changes

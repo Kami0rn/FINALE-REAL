@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, request
 import hashlib
-import os
 from blockchain import Blockchain  # Assuming blockchain.py exists in the same folder
 
 app = Flask(__name__)
@@ -9,13 +8,15 @@ blockchain = Blockchain()
 # Existing API: Mine a Block
 @app.route('/mine_block', methods=['POST'])
 def mine_block():
-    data = request.get_json()
-    image_dir = data.get('image_dir')
+    if 'images' not in request.files:
+        return jsonify({'message': 'No images provided'}), 400
 
-    if not image_dir:
-        return jsonify({'message': 'No image directory provided'}), 400
+    files = request.files.getlist('images')
 
-    block = blockchain.mine_block(image_dir)
+    if not files:
+        return jsonify({'message': 'No images provided'}), 400
+
+    block = blockchain.mine_block(files)
     response = {
         'message': 'New Block Mined',
         'block': block
@@ -70,4 +71,4 @@ def full_chain():
     return jsonify(response), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=6000)

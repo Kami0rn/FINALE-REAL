@@ -13,6 +13,8 @@ from flask import request
 from flask_socketio import SocketIO, emit
 import shutil
 
+
+
 class WGAN(Resource):
     def __init__(self, progress_data, username, user_custom_name):
         # Set image dimensions for RGB images

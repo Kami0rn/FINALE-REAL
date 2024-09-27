@@ -1,5 +1,4 @@
 import hashlib
-import os
 import json
 from time import time
 
@@ -42,14 +41,10 @@ class Blockchain:
         block_hash = self.hash_block(block_copy)
         return block_hash[:4] == '0000'  # Difficulty level: 4 leading zeros
 
-    def mine_block(self, image_dir):
-        if os.path.exists(image_dir) and os.path.isdir(image_dir):
-            for filename in os.listdir(image_dir):
-                file_path = os.path.join(image_dir, filename)
-                if os.path.isfile(file_path):
-                    with open(file_path, 'rb') as img_file:
-                        image_hash = hashlib.sha256(img_file.read()).hexdigest()
-                        self.add_image(image_hash)
+    def mine_block(self, files):
+        for file in files:
+            image_hash = hashlib.sha256(file.read()).hexdigest()
+            self.add_image(image_hash)
 
         last_block = self.chain[-1]
         nonce = self.proof_of_work(last_block)
