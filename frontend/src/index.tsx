@@ -9,6 +9,7 @@ import Register from './pages/register/Register';
 import UserProfile from './pages/login/Profile';
 import Tracing from './pages/tracing/Tracing';
 import Train from './pages/train/Train';
+import Generate from './pages/generate/Generate';
 import Blockchain from './pages/blockchain/Blockchain';
 import reportWebVitals from './reportWebVitals';
 
@@ -26,7 +27,8 @@ root.render(
         <Route path='/register'element={<Register />} />
         <Route path='/train' element={<Train />} />
         <Route path='/blockchain' element={<Blockchain />} />
-        <Route path='/tracing' element={<Tracing />} />
+        <Route path='/tracing' element={<Tracing />} />\
+        <Route path='/generate' element={<Generate />} />
       </Routes>
     </Router>
   </React.StrictMode>
