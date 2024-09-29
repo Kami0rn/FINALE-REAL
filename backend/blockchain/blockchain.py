@@ -1,12 +1,13 @@
 import hashlib
 import json
 from time import time
+import os
 
 class Blockchain:
     def __init__(self):
         self.chain = []
         self.current_images = []
-        self.create_block(prev_block_id='0', nonce=1, next_block_id=None, username='', user_custom_name='')
+        self.load_chain()
 
     def create_block(self, prev_block_id, nonce, next_block_id, username, user_custom_name):
         block = {
@@ -22,6 +23,7 @@ class Blockchain:
         }
         self.current_images = []
         self.chain.append(block)
+        self.save_chain()
         return block
 
     def add_image(self, image_hash):
@@ -65,3 +67,35 @@ class Blockchain:
 
     def view_chain(self):
         return self.chain
+
+    def save_chain(self):
+        chain_data = {
+            'chain': self.chain,
+            'hashes': [self.hash_block(block) for block in self.chain]
+        }
+        with open('blockchain_data.json', 'w') as file:
+            json.dump(chain_data, file)
+
+    def load_chain(self):
+        if os.path.exists('blockchain_data.json'):
+            try:
+                with open('blockchain_data.json', 'r') as file:
+                    chain_data = json.load(file)
+                    print("Loaded chain data:", chain_data)  # Debugging line
+                    if 'chain' in chain_data and 'hashes' in chain_data:
+                        self.chain = chain_data['chain']
+                        stored_hashes = chain_data['hashes']
+                        if not self.verify_chain(stored_hashes):
+                            raise ValueError("Blockchain data has been tampered with!")
+                    else:
+                        raise ValueError("Invalid blockchain data format!")
+            except json.JSONDecodeError:
+                raise ValueError("Error decoding blockchain data!")
+        else:
+            self.create_block(prev_block_id='0', nonce=1, next_block_id=None, username='', user_custom_name='')
+
+    def verify_chain(self, stored_hashes):
+        for i, block in enumerate(self.chain):
+            if self.hash_block(block) != stored_hashes[i]:
+                return False
+        return True
